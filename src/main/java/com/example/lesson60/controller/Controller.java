@@ -1,16 +1,16 @@
 package com.example.lesson60.controller;
 
-import com.example.lesson60.model.Comment;
 import com.example.lesson60.service.ComService;
 import com.example.lesson60.service.PubService;
 import com.example.lesson60.service.UserService;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
 
@@ -40,12 +40,14 @@ public class Controller {
     public String postDemo(@RequestParam("idUser") String idUser, @RequestParam("photo") MultipartFile photo, @RequestParam("description") String description)  throws IOException {
         System.out.println("User id : " + idUser);
         System.out.println("Image : " + photo.getOriginalFilename());
-        File photoFile = new File("src/main/resources/static/images/" + photo.getOriginalFilename());
+        String path = "../images";
+        File photoFile = new File(path + "/" + photo.getOriginalFilename());
         FileOutputStream os = new FileOutputStream(photoFile);
         os.write(photo.getBytes());
         os.close();
-        pubService.saveNewPhoto(idUser, photo.getOriginalFilename(), description);
-        return "redirect:/page/";
+        pubService.saveNewPhoto(idUser, "../image/" + photo.getOriginalFilename(), description);
+        return "success";
+
     }
     @RequestMapping(value = "/page/comment", method = RequestMethod.POST, consumes=MULTIPART_FORM_DATA)
     public String commentDemo(@RequestParam("idUser") String idUser, @RequestParam("idPhoto") String idPhoto, @RequestParam("comment") String comment) {
@@ -54,5 +56,30 @@ public class Controller {
         System.out.println("comment : " + comment);
         comService.saveNewComment(idUser, idPhoto, comment);
         return "redirect:/page/";
+    }
+    @GetMapping("/image/{name}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getImage(@PathVariable("name") String name) {
+        String path = "../images";
+        try {
+            InputStream is = new FileInputStream(new File(path) + "/" + name);
+            return ResponseEntity
+                    .ok()
+                    .contentType(name.toLowerCase().contains(".png")?MediaType.IMAGE_PNG:MediaType.IMAGE_JPEG)
+                    .body(StreamUtils.copyToByteArray(is));
+        } catch (Exception e) {
+            InputStream is = null;
+            try {
+                is = new FileInputStream(new File(path) + "/" + name);
+                return ResponseEntity
+                        .ok()
+                        .contentType(name.toLowerCase().contains(".png")?MediaType.IMAGE_PNG: MediaType.IMAGE_JPEG)
+                        .body(StreamUtils.copyToByteArray(is));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return null;
     }
 }

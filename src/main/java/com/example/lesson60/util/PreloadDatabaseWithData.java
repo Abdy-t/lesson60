@@ -26,7 +26,7 @@ public class PreloadDatabaseWithData {
 
     private void save(UserRepository userRepository, PubRepository pubRepository){
         for(int i = 0; i < 3; i++){
-            Publication p = new Publication( UUID.randomUUID().toString(), "001","anon.jpg",Generator.makeDescription());
+            Publication p = new Publication( UUID.randomUUID().toString(), "001","../image/anon1.jpg",Generator.makeDescription());
             pubRepository.save(p);
         }
 //        User user = new User(UUID.randomUUID().toString(), "mike@gmail.com");

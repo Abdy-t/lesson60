@@ -4,21 +4,20 @@ function createPostElement(post, user) {
     let posts = `
           <!-- image block start -->
           <div>
-            <img class="d-block w-100" src="/images/${post.photo}" alt="Post image">
-            <p> ${post.description}</p>
+            <img class="d-block w-100" src="${post.photo}" alt="Post image">
           </div>
           <!-- image block end -->
           <div class="px-4 py-3">
             <!-- post reactions block start -->
             <div class="d-flex justify-content-around">
-              <span class="h1 mx-2 muted">
+              <span class="h1 mx-2 muted" id="likeIcon.${post.id}" onclick="changeLikeStatus(this.id);">
                 <i class="far fa-heart"></i>
               </span>
               <span class="h1 mx-2 muted">
                 <i class="far fa-comment"></i>
               </span>
               <span class="mx-auto"></span>
-              <span class="h1 mx-2 muted">
+              <span class="h1 mx-2 muted" id="bookmarkIcon.${post.id}" onclick="changeBookmarkStatus(this.id);">
                 <i class="far fa-bookmark"></i>
               </span>
             </div>
@@ -26,38 +25,67 @@ function createPostElement(post, user) {
             <hr>
             <!-- post section start -->
             <div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum ad est cumque nulla voluptatem enim voluptas minima
-                 illum quis! Voluptatibus dolorem minus tempore aliquid corrupti nesciunt, obcaecati fuga natus officiis.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum ad est cumque nulla voluptatem enim voluptas minima
-                 illum quis! Voluptatibus dolorem minus tempore aliquid corrupti nesciunt, obcaecati fuga natus officiis.</p>
+                <p> ${post.description}</p>
             </div>
             <!-- post section end -->
             <hr>
             <!-- comments section start -->
-            <div id="${post.id}">
-              <div class="py-2 pl-3">
-                <a href="#" class="muted">someusername</a>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum ad est cumque nulla voluptatem enim
-                voluptas minima illum quis! Voluptatibus dolorem minus tempore aliquid corrupti nesciunt, obcaecati fuga natus officiis.</p>
-              </div>
-              <div class="py-2 pl-3">
-                <a href="#" class="muted">someusername</a>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum ad est cumque nulla voluptatem enim
-                voluptas minima illum quis! Voluptatibus dolorem minus tempore aliquid corrupti nesciunt, obcaecati fuga natus officiis.</p>
-              </div>
+            <button type="submit" class='change' id="block.${post.id}" onclick="splashScreenHidden(this.id);">Show comments</button>
+            <div id="comment-block.${post.id}" class="closed">
             </div>
-            <form id="form-comment" name="form-comment" enctype="multipart/form-data">
+            <form id="form-comment.${post.id}" name="form-comment" enctype="multipart/form-data">
                         <input type="hidden" name="idUser" value="${user.id}">
                         <input type="hidden" name="idPhoto" value="${post.id}">
                         <input type="text" placeholder="${post.id}" size="20" name="comment"/>
-                        <button type="submit" class='change' id="save-comment">Add comment</button>
+                        <button type="submit" class='change' id="comment.${post.id}" onclick="addComment(this.id);">Add comment</button>
             </form>
             <!-- comments section end -->
           </div>`;
     let newPost = document.createElement(`div`);
     newPost.innerHTML += posts;
     newPost.classList.add("card", "my-3");
+    newPost.id = post.id;
     return newPost;
+}
+function splashScreenHidden(id){
+    let comBlock =  document.getElementById("comment-" + id).children[0];
+    if(comBlock.classList.contains("closed")){
+        comBlock.classList.remove("closed");
+        document.getElementById("comment-" + id).hidden = false;
+    }else{
+        comBlock.classList.add("closed");
+        document.getElementById("comment-" + id).hidden = true;
+    }
+
+}
+
+function changeBookmarkStatus(id){
+    let mark = document.getElementById(id).children[0];
+    if(mark.classList.contains("fas")){
+        mark.classList.remove("text-muted","fas");
+    }else{
+        mark.classList.add("text-muted","fas");
+    }
+}
+function changeLikeStatus(id){
+    let heart = document.getElementById(id).children[0];
+    if(heart.classList.contains("text-danger")){
+        heart.classList.remove("text-danger","fas");
+    }else{
+        heart.classList.add("text-danger","fas");
+    }
+}
+function addComment(idPost){
+    const commentForm = document.getElementById("form-" + idPost);
+    let data = new FormData(commentForm);
+    console.log("COMMENT ELEMENT SAVED");
+    console.log(data);
+    fetch("http://localhost:8080/page/comment", {
+        method: 'POST',
+        body: data
+    }).then(r => r.json()).then(data => {
+        window.location.href = "http://localhost:8080/page"
+    });
 }
 function createCommentElement(comment, user) {
     let content = '<a href="#" class="muted">' + user.email + '</a>' + '<p>'+ comment.commentText + '</p>';
@@ -110,10 +138,9 @@ async function addPostElements(){
             idPhoto: comments[i].idPhoto,
             commentText: comments[i].commentText
         };
-        document.getElementById(comments[i].idPhoto).append(createCommentElement(comment, user1));
+        document.getElementById("comment-block." + comments[i].idPhoto).prepend(createCommentElement(comment, user1));
     }
 }
-
 
 window.addEventListener('load', function () {
     const saveButton = document.getElementById("save-photo");
@@ -123,19 +150,6 @@ window.addEventListener('load', function () {
         console.log("PHOTO ELEMENT SAVED");
         // alert.apply("DDD");
         fetch("http://localhost:8080/page",{
-            method: 'POST',
-            body: data
-        }).then(r => r.json()).then(data => {
-            window.location.href = "http://localhost:8080/page"
-        });
-    });
-
-    const saveCommentButton = document.getElementById("save-comments");
-    saveCommentButton.addEventListener("click", function() {
-        const commentForm = document.getElementById("form-comment");
-        let data = new FormData(commentForm);
-        console.log("COMMENT ELEMENT SAVED");
-        fetch("http://localhost:8080/page/comment", {
             method: 'POST',
             body: data
         }).then(r => r.json()).then(data => {
