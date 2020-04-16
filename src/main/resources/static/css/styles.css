@@ -20,4 +20,6 @@ footer#foot {
 }
 .no-scroll {
     overflow: hidden;
+    background-color: aqua;
+
 }

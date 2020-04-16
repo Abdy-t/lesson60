@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="/css/styles.css">
     <script src="/js/script.js"></script>
 </head>
-<body id="no-scroll" class="no-scroll" onload="addPostElements()">
-<#--<button class="close-button" onclick="splashScreenHiddenFalse()">Exit</button>-->
+<body id="no-scroll" class="no-scroll"  onload="addPostElements()">
+<button class="close-button" onclick="splashScreenHiddenFalse()">Exit</button>
 <h3>Add new post</h3>
 <form id="form" name="form" enctype="multipart/form-data" >
     <input type="hidden" name="idUser" value="${user.id}">
@@ -25,6 +25,14 @@
         </div>
     </div>
 </div>
+<section id="page-splash" class="page-splash">
+    <button class="open-button" onclick="splashScreenHiddenTrue()">To come in</button>
+    <div class="card" id="registration-form">
+        <div class="card-body">
+            <h3 class="h3">Registration</h3>
+        </div>
+    </div>
+</section>
 
 </body>
 </html>

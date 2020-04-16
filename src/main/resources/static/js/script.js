@@ -13,6 +13,9 @@ function createPostElement(post, user) {
               <span class="h1 mx-2 muted" id="likeIcon.${post.id}" onclick="changeLikeStatus(this.id);">
                 <i class="far fa-heart"></i>
               </span>
+              <span class="h1 mx-2 muted" id="dbl-likeIcon.${post.id}" ondblclick="changeLikeStatus2(this.id);">
+                  <i class="far fa-heart"></i>
+              </span>
               <span class="h1 mx-2 muted">
                 <i class="far fa-comment"></i>
               </span>
@@ -47,6 +50,15 @@ function createPostElement(post, user) {
     newPost.id = post.id;
     return newPost;
 }
+function splashScreenHiddenTrue(){
+    document.getElementById('page-splash').hidden = true;
+    document.body.classList.remove('no-scroll');
+}
+
+function splashScreenHiddenFalse(){
+    document.getElementById('page-splash').hidden = false;
+    document.body.classList.add('no-scroll');
+}
 function splashScreenHidden(id){
     let comBlock =  document.getElementById("comment-" + id).children[0];
     if(comBlock.classList.contains("closed")){
@@ -74,6 +86,14 @@ function changeLikeStatus(id){
     }else{
         heart.classList.add("text-danger","fas");
     }
+}
+function changeLikeStatus2(id){
+    let heart = document.getElementById(id).children[0];
+        heart.classList.add("text-danger","fas");
+        setTimeout( function(){
+            heart.classList.remove("text-danger","fas");
+            console.log('wait');
+        }, 500 );
 }
 function addComment(idPost){
     const commentForm = document.getElementById("form-" + idPost);
